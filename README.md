@@ -1,50 +1,126 @@
-# Welcome to your Expo app 👋
+# 🗄️ DevVault
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+> **Your personal knowledge engine** — built for developers and curious minds who refuse to let great ideas slip away.
 
-## Get started
+---
 
-1. Install dependencies
+## What is DevVault?
 
-   ```bash
-   npm install
-   ```
+DevVault is a mobile-first knowledge base app for capturing, organizing, and exploring everything you learn. Notes, snippets, tutorials, tools — all in one beautiful, offline-first vault.
 
-2. Start the app
+No cloud required. No subscriptions. Just you and your knowledge.
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## ✨ Features
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+| Feature | Description |
+|---|---|
+| 📝 **Rich Notes** | Write with Markdown — bold, code blocks, headers, tables |
+| 🏷️ **Smart Metadata** | Organize by category, lifecycle phase, domain, and custom sections |
+| 🔍 **Instant Search** | Full-text search with multi-select filter chips |
+| 🗺️ **Knowledge Graph** | Visual graph showing how your notes connect |
+| 📷 **Image Attachments** | Attach photos from camera or gallery |
+| 🎙️ **Voice Input** | Dictate titles and content via speech recognition |
+| 🌙 **5 Themes** | Minimal, Modern, Glassmorphism, Tactile, Terminal |
+| 🎨 **Accent Colors** | 8 accent color options to personalize your vault |
+| 📦 **Export / Import** | Back up and restore your entire vault as JSON |
+| ⚡ **Offline First** | 100% local — SQLite database, no internet needed |
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## 📱 Screenshots
 
-When you're ready, run:
+> *Terminal theme · Graph view · Search filters*
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org) 18+
+- [Expo CLI](https://docs.expo.dev/get-started/installation/)
+- Android device or emulator (iOS supported too)
+
+### Install & Run
 
 ```bash
-npm run reset-project
+# Clone the repository
+git clone https://github.com/your-username/DevVault.git
+cd DevVault/DevVault
+
+# Install dependencies
+npm install
+
+# Start the dev server
+npx expo start -c
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Scan the QR code with **Expo Go** on your phone, or press `a` to open on Android emulator.
 
-## Learn more
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+## 🏗️ Build APK
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+# Install EAS CLI
+npm install -g eas-cli
 
-## Join the community
+# Login to your Expo account
+eas login
 
-Join our community of developers creating universal apps.
+# Build an APK (Android)
+eas build --platform android --profile preview
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Download the APK from the link provided after the build completes.
+
+---
+
+## 🗂️ Project Structure
+
+```
+DevVault/
+├── app/
+│   ├── (tabs)/          # Main tab screens (Vault, Search, Add, Settings)
+│   ├── item/            # Item detail, create, and edit screens
+│   └── metadata/        # Manage sections & labels
+├── components/          # Reusable UI components
+│   ├── ItemCard.tsx     # Knowledge item card
+│   ├── ItemForm.tsx     # Create/edit form
+│   ├── GraphView.tsx    # Interactive knowledge graph
+│   └── ...
+├── context/
+│   ├── ThemeContext.tsx # Theme & accent color management
+│   └── VaultContext.tsx # Data & SQLite state management
+├── lib/
+│   └── database.ts      # SQLite schema & queries
+└── constants/
+    └── colors.ts        # Design tokens
+```
+
+---
+
+## 🛠️ Tech Stack
+
+- **[Expo](https://expo.dev)** — React Native framework
+- **[Expo Router](https://expo.github.io/router)** — File-based navigation
+- **[Expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/)** — Local database
+- **[React Native SVG](https://github.com/software-mansion/react-native-svg)** — Graph rendering
+- **[Expo Speech Recognition](https://github.com/jamsch/expo-speech-recognition)** — Voice input
+- **[AsyncStorage](https://react-native-async-storage.github.io/async-storage/)** — Settings persistence
+
+---
+
+## 🎨 Themes
+
+| Theme | Description |
+|---|---|
+| **Minimal** | Dark & sharp — clean dark background, no clutter |
+| **Modern** | Clean light mode — crisp and bright |
+| **Glassmorphism** | Frosted blur panels with floating blobs |
+| **Tactile** | Depth & texture — raised card surfaces |
+| **Terminal** | Hacker aesthetic — green-on-black monospace |
+
+---
