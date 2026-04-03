@@ -1,0 +1,57 @@
+{
+  "expo": {
+    "name": "DevVault",
+    "slug": "DevVault",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "devvault",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0B0E"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSSpeechRecognitionUsageDescription": "Allow DevVault to convert your speech into text for titles and content.",
+        "NSMicrophoneUsageDescription": "Allow DevVault to access the microphone for voice-to-text recording."
+      }
+    },
+    "android": {
+      "backgroundColor": "#0A0B0E",
+      "package": "com.yazeed123.devvault",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/images/icon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-web-browser",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow DevVault to access the microphone for voice-to-text recording.",
+          "speechRecognitionPermission": "Allow DevVault to convert your speech into text for titles and content."
+        }
+      ],
+      "expo-sqlite"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6fa7a0cf-acba-450a-ad3c-892ac1400c23"
+      }
+    }
+  }
+}
