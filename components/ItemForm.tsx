@@ -251,8 +251,6 @@ JSON Output Format (IMPORTANT: Put metadata first, Keep content concise, use ##,
   };
 
   const handleAiGenerate = async () => {
-    if (!aiPrompt.trim()) return;
-
     if (!aiState.isNativeSupported) {
       Alert.alert(
         "Development Build Required",
@@ -271,6 +269,8 @@ JSON Output Format (IMPORTANT: Put metadata first, Keep content concise, use ##,
       }
       return;
     }
+
+    if (!aiPrompt.trim()) return;
 
     setAiLoading(true);
     setAiResponse("");
@@ -825,9 +825,27 @@ const styles = StyleSheet.create({
   aiResponseScroll: {
     borderRadius: 12,
     borderWidth: 1,
-    padding: 14,
-    maxHeight: 200,
+    paddingHorizontal: 14,
+    paddingTop: 14,
+    maxHeight: 380, // Increased height for better reading
     marginBottom: 12,
+  },
+  aiActionRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 10,
+  },
+  aiSecondaryBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderRadius: 12,
+    paddingVertical: 12,
+  },
+  aiSecondaryBtnText: {
+    fontSize: 14,
+    fontFamily: "Inter_500Medium",
   },
   aiResponseText: {
     fontSize: 13,
