@@ -56,6 +56,9 @@ async function runMigration(db: SQLite.SQLiteDatabase) {
   const tableCheck = await db.getAllAsync<{ name: string }>("SELECT name FROM sqlite_master WHERE type='table' AND name='categories'");
   if (tableCheck.length === 0) return;
 
+  const hasPhases = (await db.getAllAsync<{ name: string }>("SELECT name FROM sqlite_master WHERE type='table' AND name='lifecycle_phases'")).length > 0;
+  const hasDomains = (await db.getAllAsync<{ name: string }>("SELECT name FROM sqlite_master WHERE type='table' AND name='domain_areas'")).length > 0;
+
   console.log("Starting metadata migration to dynamic engine...");
 
   // 1. Core definitions
@@ -72,14 +75,18 @@ async function runMigration(db: SQLite.SQLiteDatabase) {
     await db.runAsync("INSERT OR IGNORE INTO metadata_values (def_id, slug, label, icon) VALUES (?, ?, ?, ?)", [defMap.category, c.slug, c.label, c.icon ?? null]);
   }
 
-  const oldPhases = await db.getAllAsync<{ slug: string; label: string }>("SELECT * FROM lifecycle_phases");
-  for (const p of oldPhases) {
-    await db.runAsync("INSERT OR IGNORE INTO metadata_values (def_id, slug, label) VALUES (?, ?, ?)", [defMap.lifecycle, p.slug, p.label]);
+  if (hasPhases) {
+    const oldPhases = await db.getAllAsync<{ slug: string; label: string }>("SELECT * FROM lifecycle_phases");
+    for (const p of oldPhases) {
+      await db.runAsync("INSERT OR IGNORE INTO metadata_values (def_id, slug, label) VALUES (?, ?, ?)", [defMap.lifecycle, p.slug, p.label]);
+    }
   }
 
-  const oldDomains = await db.getAllAsync<{ slug: string; label: string }>("SELECT * FROM domain_areas");
-  for (const d of oldDomains) {
-    await db.runAsync("INSERT OR IGNORE INTO metadata_values (def_id, slug, label) VALUES (?, ?, ?)", [defMap.domain, d.slug, d.label]);
+  if (hasDomains) {
+    const oldDomains = await db.getAllAsync<{ slug: string; label: string }>("SELECT * FROM domain_areas");
+    for (const d of oldDomains) {
+      await db.runAsync("INSERT OR IGNORE INTO metadata_values (def_id, slug, label) VALUES (?, ?, ?)", [defMap.domain, d.slug, d.label]);
+    }
   }
 
   // 3. Junction mapping
@@ -111,9 +118,9 @@ async function runMigration(db: SQLite.SQLiteDatabase) {
   }
 
   // Clean up
-  await db.execAsync("DROP TABLE categories");
-  await db.execAsync("DROP TABLE lifecycle_phases");
-  await db.execAsync("DROP TABLE domain_areas");
+  await db.execAsync("DROP TABLE IF EXISTS categories");
+  await db.execAsync("DROP TABLE IF EXISTS lifecycle_phases");
+  await db.execAsync("DROP TABLE IF EXISTS domain_areas");
   console.log("Metadata engine migration complete!");
 }
 
@@ -263,6 +270,7 @@ export async function initDatabase(): Promise<void> {
   }
 
   await runMigration(database);
+  await seedDatabase();
 }
 
 async function getItemMetadata(db: SQLite.SQLiteDatabase, itemId: number): Promise<Record<string, string[]>> {
