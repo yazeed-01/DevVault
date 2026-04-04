@@ -89,53 +89,68 @@ async function runMigration(db: SQLite.SQLiteDatabase) {
     }
   }
 
-  // 3. Junction mapping
-  const items = await db.getAllAsync<{ id: number; category: string; lifecyclePhases: string; domainAreas: string }>("SELECT id, category, lifecyclePhases, domainAreas FROM knowledge_items");
-  for (const item of items) {
-    // Category mapping
-    const valObj = await db.getFirstAsync<{ id: number }>("SELECT id FROM metadata_values WHERE def_id = ? AND slug = ?", [defMap.category, item.category]);
-    if (valObj) {
-      await db.runAsync("INSERT OR IGNORE INTO item_metadata (item_id, val_id) VALUES (?, ?)", [item.id, valObj.id]);
+  // 3. Junction mapping (wrapped in try-catch — old DBs may lack lifecyclePhases/domainAreas columns)
+  try {
+    const items = await db.getAllAsync<{ id: number; category: string; lifecyclePhases: string; domainAreas: string }>(
+      "SELECT id, category, lifecyclePhases, domainAreas FROM knowledge_items"
+    );
+    for (const item of items) {
+      // Category mapping
+      const valObj = await db.getFirstAsync<{ id: number }>("SELECT id FROM metadata_values WHERE def_id = ? AND slug = ?", [defMap.category, item.category]);
+      if (valObj) {
+        await db.runAsync("INSERT OR IGNORE INTO item_metadata (item_id, val_id) VALUES (?, ?)", [item.id, valObj.id]);
+      }
+
+      // Phases mapping
+      try {
+        const phases = JSON.parse(item.lifecyclePhases || "[]");
+        for (const pSlug of phases) {
+          const v = await db.getFirstAsync<{ id: number }>("SELECT id FROM metadata_values WHERE def_id = ? AND slug = ?", [defMap.lifecycle, pSlug]);
+          if (v) await db.runAsync("INSERT OR IGNORE INTO item_metadata (item_id, val_id) VALUES (?, ?)", [item.id, v.id]);
+        }
+      } catch (_) {}
+
+      // Domains mapping
+      try {
+        const domains = JSON.parse(item.domainAreas || "[]");
+        for (const dSlug of domains) {
+          const v = await db.getFirstAsync<{ id: number }>("SELECT id FROM metadata_values WHERE def_id = ? AND slug = ?", [defMap.domain, dSlug]);
+          if (v) await db.runAsync("INSERT OR IGNORE INTO item_metadata (item_id, val_id) VALUES (?, ?)", [item.id, v.id]);
+        }
+      } catch (_) {}
     }
-
-    // Phases mapping
-    try {
-      const phases = JSON.parse(item.lifecyclePhases || "[]");
-      for (const pSlug of phases) {
-        const v = await db.getFirstAsync<{ id: number }>("SELECT id FROM metadata_values WHERE def_id = ? AND slug = ?", [defMap.lifecycle, pSlug]);
-        if (v) await db.runAsync("INSERT OR IGNORE INTO item_metadata (item_id, val_id) VALUES (?, ?)", [item.id, v.id]);
-      }
-    } catch (e) {}
-
-    // Domains mapping
-    try {
-      const domains = JSON.parse(item.domainAreas || "[]");
-      for (const dSlug of domains) {
-        const v = await db.getFirstAsync<{ id: number }>("SELECT id FROM metadata_values WHERE def_id = ? AND slug = ?", [defMap.domain, dSlug]);
-        if (v) await db.runAsync("INSERT OR IGNORE INTO item_metadata (item_id, val_id) VALUES (?, ?)", [item.id, v.id]);
-      }
-    } catch (e) {}
+  } catch (e) {
+    console.warn("[Migration] Junction mapping skipped (old schema):", e);
   }
 
-  // Clean up
-  await db.execAsync("DROP TABLE IF EXISTS categories");
-  await db.execAsync("DROP TABLE IF EXISTS lifecycle_phases");
-  await db.execAsync("DROP TABLE IF EXISTS domain_areas");
+  // Clean up safely
+  try { await db.execAsync("DROP TABLE IF EXISTS categories"); } catch (_) {}
+  try { await db.execAsync("DROP TABLE IF EXISTS lifecycle_phases"); } catch (_) {}
+  try { await db.execAsync("DROP TABLE IF EXISTS domain_areas"); } catch (_) {}
   console.log("Metadata engine migration complete!");
 }
 
 export async function initDatabase(): Promise<void> {
   const database = await getDb();
 
-  await database.execAsync(`
-    PRAGMA journal_mode = WAL;
+    // Ensure knowledge_items has the new junction columns if they don't exist
+    // (In case a previous migration failed halfway)
+    try {
+      await database.execAsync("ALTER TABLE knowledge_items ADD COLUMN lifecyclePhases TEXT;");
+    } catch (_) {}
+    try {
+      await database.execAsync("ALTER TABLE knowledge_items ADD COLUMN domainAreas TEXT;");
+    } catch (_) {}
 
-    CREATE TABLE IF NOT EXISTS metadata_definitions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      slug TEXT UNIQUE NOT NULL,
-      label TEXT NOT NULL,
-      icon TEXT
-    );
+    await database.execAsync(`
+      PRAGMA journal_mode = WAL;
+
+      CREATE TABLE IF NOT EXISTS metadata_definitions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        slug TEXT UNIQUE NOT NULL,
+        label TEXT NOT NULL,
+        icon TEXT
+      );
 
     CREATE TABLE IF NOT EXISTS metadata_values (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -41,7 +41,8 @@
           "speechRecognitionPermission": "Allow DevVault to convert your speech into text for titles and content."
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "llama.rn"
     ],
     "experiments": {
       "typedRoutes": true,
