@@ -21,6 +21,7 @@ import { GraphView } from "@/components/GraphView";
 import { ItemCard } from "@/components/ItemCard";
 import { SkeletonCard } from "@/components/SkeletonLoader";
 import { BackgroundAccents } from "@/components/BackgroundAccents";
+import { KanbanView } from "@/components/KanbanView";
 
 // Dynamic categories and stats will be fetched from useVault
 
@@ -40,9 +41,15 @@ export default function ExploreScreen() {
   const topPadding = Platform.OS === "web" ? Math.max(insets.top, 67) : insets.top;
   const isTerminal = settings.visualStyle === "terminal";
   const isGraph = settings.viewMode === "graph";
+  const isKanban = settings.viewMode === "kanban";
 
-  const toggleViewMode = () =>
-    updateSetting("viewMode", isGraph ? "list" : "graph");
+  const toggleViewMode = () => {
+    if (settings.viewMode === "list") updateSetting("viewMode", "kanban");
+    else if (settings.viewMode === "kanban") updateSetting("viewMode", "graph");
+    else updateSetting("viewMode", "list");
+  };
+
+  const viewIcon = isGraph ? "list" : isKanban ? "share-2" : "trello";
 
   // Helper for chip colors
   const getCategoryStyle = (cat?: any) => {
@@ -89,7 +96,7 @@ export default function ExploreScreen() {
         backgroundColor={themeStyles.screenBg["backgroundColor"]}
       />
 
-      <BackgroundAccents hide={isGraph} />
+      <BackgroundAccents hide={isGraph || isKanban} />
 
       {/* ── Fixed header ── */}
       <View style={styles.header}>
@@ -108,16 +115,16 @@ export default function ExploreScreen() {
           <Pressable
             style={[
               styles.actionBtn,
-              isGraph
+              (isGraph || isKanban)
                 ? { backgroundColor: accent + "25", borderColor: accent + "60" }
                 : { backgroundColor: accentGlow, borderColor: tc.border },
             ]}
             onPress={toggleViewMode}
           >
             <Feather
-              name={isGraph ? "list" : "share-2"}
+              name={viewIcon}
               size={18}
-              color={isGraph ? accent : tc.textSecondary}
+              color={(isGraph || isKanban) ? accent : tc.textSecondary}
             />
           </Pressable>
           {/* Add button */}
@@ -236,6 +243,11 @@ export default function ExploreScreen() {
               onNodePress={(item) => router.push({ pathname: "/item/[id]", params: { id: item.id } })}
             />
           )
+        ) : isKanban && !loading ? (
+          <KanbanView
+            items={filteredItems}
+            onItemPress={(item) => router.push({ pathname: "/item/[id]", params: { id: item.id } })}
+          />
         ) : (
           <FlatList
             key="list"

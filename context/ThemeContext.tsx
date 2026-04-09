@@ -11,7 +11,7 @@ export type VisualStyle =
 
 export type AccentColor = "blue" | "purple" | "green" | "orange" | "red" | "teal";
 export type FontSize = "small" | "medium" | "large";
-export type ViewMode = "list" | "graph";
+export type ViewMode = "list" | "graph" | "kanban";
 
 export interface ThemeSettings {
   visualStyle: VisualStyle;

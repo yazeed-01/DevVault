@@ -240,9 +240,10 @@ Available categories: ${allCategories}
 Available lifecycle phases: ${allPhases}
 Available domain areas: ${allDomains}
 
-JSON Output Format (IMPORTANT: Put metadata first, Keep content concise, use ##, Max 150 words):
+JSON Output Format (IMPORTANT: Respond with ONLY the JSON object, no extra text):
 {
   "title": "Concise, descriptive title",
+  "content": "## Overview\n\nMarkdown content here. Use ## for sections. Keep it under 200 words and educational.",
   "category": "exact_category_slug",
   "tags": ["tag1", "tag2"],
   "lifecyclePhases": ["phase_slug"],
